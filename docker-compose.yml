@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    networks:
+      - archiver-network-bridge
+    ports:
+      - 3000:3000
+      - 5858:5858
+    links:
+      - database
+    depends_on:
+      - database
+    volumes:
+      - ./src:/data/src/
+      - ./dist:/server/dist/
+      - ./tsconfig.json:/data/tsconfig.json
+      - ./package.json:/data/package.json
+    environment:
+      NODE_ENV: dev
+    working_dir: /data
+
+  database:
+    image: mongo:5.0
+    networks:
+        - archiver-network-bridge
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: default
+
+networks:
+  archiver-network-bridge:
+    driver: bridge
